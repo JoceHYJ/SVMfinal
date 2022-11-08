@@ -6,12 +6,16 @@ import scipy as sp
 from sklearn import datasets, svm, metrics
 from sklearn.exceptions import NotFittedError
 from sklearn.model_selection import train_test_split
-from sklearn.svm._base import BaseLibSVM, LIBSVM_IMPL, _one_vs_one_coef
 from sklearn.utils import column_or_1d, compute_class_weight
 from sklearn.utils.extmath import safe_sparse_dot
 from sklearn.utils.metaestimators import available_if
 from sklearn.utils.multiclass import check_classification_targets, _ovr_decision_function
 from sklearn.utils.validation import check_is_fitted
+from sklearn.svm._base import BaseLibSVM, LIBSVM_IMPL, _one_vs_one_coef
+# from sklearn.svm._base import LIBSVM_IMPL, _one_vs_one_coef
+# from sklearn.svm._base import BaseLibSVM, _one_vs_one_coef
+# from sklearn.svm._base import BaseLibSVM, LIBSVM_IMPL
+
 
 digits = datasets.load_digits()
 
@@ -24,6 +28,7 @@ for ax, image, label in zip(axes, digits.images, digits.target):
 # flatten the images
 n_samples = len(digits.images)
 data = digits.images.reshape((n_samples, -1))
+
 
 # Create a classifier: a support vector classifier
 # TODO
@@ -66,7 +71,9 @@ class MyClassifierMixin:
     def _more_tags(self):
         return {"requires_y": True}
 
+
 # MyBaseSVC
+# TODO 修改 BaseLibSVM
 class MyBaseSVC(MyClassifierMixin, BaseLibSVM, metaclass=ABCMeta):
     """ABC for LibSVM-based classifiers."""
 
@@ -277,7 +284,7 @@ class MyBaseSVC(MyClassifierMixin, BaseLibSVM, metaclass=ABCMeta):
         if callable(kernel):
             kernel = "precomputed"
 
-        # TODO
+        # TODO 修改 LIBSVM_IMPL
 
         svm_type = LIBSVM_IMPL.index(self._impl)
         pprob = libsvm_predict_proba(
@@ -317,6 +324,7 @@ class MyBaseSVC(MyClassifierMixin, BaseLibSVM, metaclass=ABCMeta):
             self.support_vectors_.indptr,
             self._dual_coef_.data,
             self._intercept_,
+            # TODO 修改 LIBSVM_IMPL
             LIBSVM_IMPL.index(self._impl),
             kernel_type,
             self.degree,
@@ -340,7 +348,7 @@ class MyBaseSVC(MyClassifierMixin, BaseLibSVM, metaclass=ABCMeta):
             coef = safe_sparse_dot(self.dual_coef_, self.support_vectors_)
         else:
             # 1vs1 classifier
-            # TODO
+            # TODO _one_vs_one_coef
             coef = _one_vs_one_coef(
                 self.dual_coef_, self._n_support, self.support_vectors_
             )
@@ -643,6 +651,7 @@ class MySVC(MyBaseSVC):
                 ),
             }
         }
+
 
 # TODO
 def libsvm_predict_proba(*args, **kwargs):  # real signature unknown
